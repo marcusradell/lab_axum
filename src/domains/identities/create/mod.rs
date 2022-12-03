@@ -1,5 +1,5 @@
 use self::repo::CreateRepo;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 mod repo;
 
@@ -8,7 +8,7 @@ pub struct CreateArgs {
     pub email: String,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub struct CreateData {
     pub _id: String,
     pub _email: String,

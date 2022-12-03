@@ -3,7 +3,7 @@ use sqlx::PgPool;
 #[derive(Clone)]
 pub struct Repo {
     // TODO: Replace with SQLx
-    db: PgPool,
+    pub db: PgPool,
 }
 
 impl Repo {
