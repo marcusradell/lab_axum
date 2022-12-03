@@ -3,6 +3,8 @@ use serde::{Deserialize, Serialize};
 
 mod repo;
 
+pub const CREATED: &str = "IDENTITIES/CREATED";
+
 #[derive(Deserialize)]
 pub struct Input {
     pub email: String,

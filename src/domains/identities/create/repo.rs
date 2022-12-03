@@ -1,4 +1,4 @@
-use super::Event;
+use super::{Event, CREATED};
 use crate::domains::identities::repo::Repo;
 use async_trait::async_trait;
 use chrono::Utc;
@@ -9,8 +9,6 @@ use uuid::Uuid;
 pub trait CreateRepo {
     async fn create(&self, event: Event);
 }
-
-pub const CREATED: &str = "IDENTITIES/CREATED";
 
 #[async_trait]
 impl CreateRepo for Repo {
