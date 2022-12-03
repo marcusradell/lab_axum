@@ -4,6 +4,7 @@ use self::{
 };
 use axum::{routing::post, Json, Router};
 use create::create;
+use sqlx::PgPool;
 use std::sync::Arc;
 use uuid::Uuid;
 
@@ -16,9 +17,11 @@ pub struct IdentityDomain {
 }
 
 impl IdentityDomain {
-    pub fn new_with_routes() -> (Router, Self) {
+    pub fn new_with_routes(db: PgPool) -> (Router, Self) {
         let router = Router::new();
-        let me = Self { repo: Repo::new() };
+        let me = Self {
+            repo: Repo::new(db),
+        };
         let router = me.add_routes(router);
 
         (router, me)

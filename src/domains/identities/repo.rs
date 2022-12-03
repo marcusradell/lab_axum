@@ -1,11 +1,13 @@
+use sqlx::PgPool;
+
 #[derive(Clone)]
 pub struct Repo {
     // TODO: Replace with SQLx
-    _db: (),
+    db: PgPool,
 }
 
 impl Repo {
-    pub fn new() -> Self {
-        Self { _db: () }
+    pub fn new(db: PgPool) -> Self {
+        Self { db }
     }
 }

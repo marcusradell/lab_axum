@@ -1,16 +1,27 @@
+use crate::domains::identities::IdentityDomain;
 use axum::Router;
+use dotenv::dotenv;
+use ensure_env::ensure_env;
+use sqlx::postgres::PgPoolOptions;
 use std::net::SocketAddr;
 
-use crate::domains::identities::IdentityDomain;
-
 mod domains;
+mod ensure_env;
 
 #[tokio::main]
 async fn main() {
+    dotenv().ok();
+
+    let db_uri = ensure_env("DATABASE_URL");
+
+    let db = PgPoolOptions::new()
+        .connect(&db_uri)
+        .await
+        .expect("Failed to create database connection pool.");
+
     let router = Router::new();
 
-    let (identities_router, _identities) = IdentityDomain::new_with_routes();
-
+    let (identities_router, _identities) = IdentityDomain::new_with_routes(db.clone());
     let router = router.nest("/identities", identities_router);
 
     let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
