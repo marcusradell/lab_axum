@@ -6,7 +6,14 @@ use axum::{
 use serde::Deserialize;
 use std::{net::SocketAddr, sync::Arc};
 
+#[derive(Debug)]
 struct AppState {}
+
+impl AppState {
+    fn create(&self) {
+        dbg!(self);
+    }
+}
 
 #[tokio::main]
 async fn main() {
@@ -38,7 +45,9 @@ async fn main() {
 
 async fn get_user(Path(user_id): Path<String>, state: Arc<AppState>) {}
 
-async fn create_user(Json(payload): Json<CreateUserPayload>, state: Arc<AppState>) {}
+async fn create_user(Json(payload): Json<CreateUserPayload>, state: Arc<AppState>) {
+    state.create()
+}
 
 #[derive(Deserialize)]
 struct CreateUserPayload {}
