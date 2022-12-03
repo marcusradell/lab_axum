@@ -1,24 +1,21 @@
-use std::sync::Arc;
-
 use axum::{routing::post, Json, Router};
-use serde::Deserialize;
+use create::create;
+use std::sync::Arc;
 use uuid::Uuid;
 
-#[derive(Debug, Clone)]
-pub struct CreateData {
-    pub _id: String,
-    pub _email: String,
-}
+use self::create::{CreateArgs, CreateData};
+
+mod create;
 
 #[derive(Clone)]
-struct Repo {
+pub struct Repo {
     // TODO: Replace with SQLx
-    _db: Vec<CreateData>,
+    _db: (),
 }
 
 impl Repo {
     fn new() -> Self {
-        Self { _db: vec![] }
+        Self { _db: () }
     }
 
     async fn create(&self, data: CreateData) {
@@ -48,24 +45,18 @@ impl IdentityDomain {
             "/create",
             post({
                 let shared_self = Arc::clone(&shared_self);
-                |Json(payload): Json<CreateArgs>| async move {
-                    shared_self
-                        .create(CreateData {
+
+                |Json(args): Json<CreateArgs>| async move {
+                    create(
+                        &shared_self.repo,
+                        CreateData {
                             _id: Uuid::new_v4().to_string(),
-                            _email: payload.email,
-                        })
-                        .await
+                            _email: args.email,
+                        },
+                    )
+                    .await
                 }
             }),
         )
     }
-
-    pub async fn create(&self, data: CreateData) {
-        self.repo.create(data).await
-    }
-}
-
-#[derive(Deserialize)]
-pub struct CreateArgs {
-    email: String,
 }
