@@ -33,12 +33,12 @@ impl IdentityDomain {
     pub fn new_with_routes() -> (Router, Self) {
         let router = Router::new();
         let me = Self { repo: Repo::new() };
-        let router = me.init_routes(router);
+        let router = me.add_routes(router);
 
         (router, me)
     }
 
-    fn init_routes(&self, router: Router) -> Router {
+    fn add_routes(&self, router: Router) -> Router {
         let shared_self = Arc::new(self.clone());
 
         router.route(
