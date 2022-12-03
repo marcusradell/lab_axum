@@ -20,7 +20,6 @@ impl Repo {
     }
 
     async fn create(&self, data: IdentityData) {
-        // self.db.insert(0, data)
         println!("Identity created! (Fake)");
         dbg!(data);
     }
