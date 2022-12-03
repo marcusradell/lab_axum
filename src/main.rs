@@ -1,4 +1,4 @@
-use axum::{ Router};
+use axum::Router;
 use std::net::SocketAddr;
 
 use crate::domains::identities::IdentityDomain;
@@ -9,8 +9,7 @@ mod domains;
 async fn main() {
     let router = Router::new();
 
-    let identities_domain = IdentityDomain::new();
-    let router = identities_domain.init_routes(router);
+    let (router, _identities) = IdentityDomain::new_with_routes(router);
 
     let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
 

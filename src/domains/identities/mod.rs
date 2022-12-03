@@ -31,11 +31,14 @@ pub struct IdentityDomain {
 }
 
 impl IdentityDomain {
-    pub fn new() -> Self {
-        Self { repo: Repo::new() }
+    pub fn new_with_routes(router: Router) -> (Router, Self) {
+        let me = Self { repo: Repo::new() };
+        let router = me.init_routes(router);
+
+        (router, me)
     }
 
-    pub fn init_routes(&self, router: Router) -> Router {
+    fn init_routes(&self, router: Router) -> Router {
         let shared_self = Arc::new(self.clone());
 
         router.route(
