@@ -18,14 +18,13 @@ pub struct IdentityDomain {
 }
 
 impl IdentityDomain {
-    pub fn new_with_routes(db: PgPool) -> (Router, Self) {
+    pub fn init(db: PgPool) -> Router {
         let router = Router::new();
         let me = Self {
             repo: Repo::new(db),
         };
-        let router = me.add_routes(router);
 
-        (router, me)
+        me.add_routes(router)
     }
 
     fn add_routes(&self, router: Router) -> Router {

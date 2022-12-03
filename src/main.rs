@@ -26,7 +26,7 @@ async fn main() {
 
     let router = Router::new();
 
-    let (identities_router, _identities) = IdentityDomain::new_with_routes(db.clone());
+    let identities_router = IdentityDomain::init(db.clone());
     let router = router.nest("/identities", identities_router);
 
     let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
