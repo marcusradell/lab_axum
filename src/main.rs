@@ -8,17 +8,17 @@ use std::{net::SocketAddr, sync::Arc};
 
 #[derive(Debug)]
 struct IdentityData {
-    id: String,
-    email: String,
+    _id: String,
+    _email: String,
 }
 
 struct Repo {
-    db: Vec<IdentityData>,
+    _db: Vec<IdentityData>,
 }
 
 impl Repo {
     fn new() -> Self {
-        Self { db: vec![] }
+        Self { _db: vec![] }
     }
 
     async fn create(&self, data: IdentityData) {
@@ -44,7 +44,7 @@ impl IdentityDomain {
 
 #[tokio::main]
 async fn main() {
-    let mut shared_state = Arc::new(IdentityDomain::new());
+    let shared_state = Arc::new(IdentityDomain::new());
 
     let app = Router::new()
         .route(
@@ -71,13 +71,13 @@ async fn main() {
         .unwrap();
 }
 
-async fn get_user(Path(user_id): Path<String>, state: Arc<IdentityDomain>) {}
+async fn get_user(Path(_user_id): Path<String>, _state: Arc<IdentityDomain>) {}
 
 async fn create_user(Json(payload): Json<CreateUserPayload>, state: Arc<IdentityDomain>) {
     state
         .create(IdentityData {
-            id: "Some UUID".to_string(),
-            email: payload.email,
+            _id: "Some UUID".to_string(),
+            _email: payload.email,
         })
         .await
 }
