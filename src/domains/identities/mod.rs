@@ -1,12 +1,8 @@
-use self::{
-    create::{CreateArgs, CreateData},
-    repo::Repo,
-};
+use self::repo::Repo;
 use axum::{
     routing::{get, post},
     Json, Router,
 };
-use create::create;
 use sqlx::PgPool;
 use std::sync::Arc;
 use uuid::Uuid;
@@ -40,12 +36,12 @@ impl IdentityDomain {
                 post({
                     let shared_self = Arc::clone(&shared_self);
 
-                    |Json(args): Json<CreateArgs>| async move {
-                        create(
+                    |Json(input): Json<create::Input>| async move {
+                        create::handler(
                             &shared_self.repo,
-                            CreateData {
-                                _id: Uuid::new_v4().to_string(),
-                                _email: args.email,
+                            create::Event {
+                                id: Uuid::new_v4().to_string(),
+                                email: input.email,
                             },
                         )
                         .await

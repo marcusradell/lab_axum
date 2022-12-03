@@ -1,26 +1,24 @@
+use super::Event;
+use crate::domains::identities::repo::Repo;
 use async_trait::async_trait;
 use chrono::Utc;
 use sqlx::types::Json;
 use uuid::Uuid;
 
-use crate::domains::identities::repo::Repo;
-
-use super::CreateData;
-
 #[async_trait]
 pub trait CreateRepo {
-    async fn create(&self, data: CreateData);
+    async fn create(&self, event: Event);
 }
 
 pub const CREATED: &str = "IDENTITIES/CREATED";
 
 #[async_trait]
 impl CreateRepo for Repo {
-    async fn create(&self, data: CreateData) {
+    async fn create(&self, event: Event) {
         let id = Uuid::new_v4();
         let cid = Uuid::new_v4();
         let inserted_at = Utc::now();
-        let data = Json(data);
+        let event = Json(event);
 
         sqlx::query!(
             r#"
@@ -32,7 +30,7 @@ impl CreateRepo for Repo {
             id,
             1,
             CREATED,
-            data as _,
+            event as _,
             cid,
             inserted_at
         )

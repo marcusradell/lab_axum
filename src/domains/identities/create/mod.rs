@@ -4,16 +4,16 @@ use serde::{Deserialize, Serialize};
 mod repo;
 
 #[derive(Deserialize)]
-pub struct CreateArgs {
+pub struct Input {
     pub email: String,
 }
 
 #[derive(Debug, Clone, Serialize)]
-pub struct CreateData {
-    pub _id: String,
-    pub _email: String,
+pub struct Event {
+    pub id: String,
+    pub email: String,
 }
 
-pub async fn create(repo: &impl CreateRepo, data: CreateData) {
-    repo.create(data).await
+pub async fn handler(repo: &impl CreateRepo, event: Event) {
+    repo.create(event).await
 }
