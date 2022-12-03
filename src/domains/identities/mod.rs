@@ -2,6 +2,7 @@ use std::sync::Arc;
 
 use axum::{routing::post, Json, Router};
 use serde::Deserialize;
+use uuid::Uuid;
 
 #[derive(Debug, Clone)]
 pub struct CreateData {
@@ -11,6 +12,7 @@ pub struct CreateData {
 
 #[derive(Clone)]
 struct Repo {
+    // TODO: Replace with SQLx
     _db: Vec<CreateData>,
 }
 
@@ -49,7 +51,7 @@ impl IdentityDomain {
                 |Json(payload): Json<CreateArgs>| async move {
                     shared_self
                         .create(CreateData {
-                            _id: "Some UUID".to_string(),
+                            _id: Uuid::new_v4().to_string(),
                             _email: payload.email,
                         })
                         .await
