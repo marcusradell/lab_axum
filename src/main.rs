@@ -6,29 +6,55 @@ use axum::{
 use serde::Deserialize;
 use std::{net::SocketAddr, sync::Arc};
 
-#[derive(Debug)]
-struct AppState {}
+struct IdentityData {
+    id: String,
+    email: String,
+}
 
-impl AppState {
-    fn create(&self) {
-        dbg!(self);
+struct Repo {
+    db: Vec<IdentityData>,
+}
+
+impl Repo {
+    fn new() -> Self {
+        Self { db: vec![] }
+    }
+
+    async fn create(&self, data: IdentityData) {
+        // self.db.insert(0, data)
+        println!("Identity created! (Fake)")
+    }
+}
+
+struct IdentityDomain {
+    repo: Repo,
+}
+
+impl IdentityDomain {
+    fn new() -> Self {
+        Self { repo: Repo::new() }
+    }
+
+    async fn create(&self, data: IdentityData) {
+        self.repo.create(data).await
     }
 }
 
 #[tokio::main]
 async fn main() {
-    let shared_state = Arc::new(AppState {});
+    let mut shared_state = Arc::new(IdentityDomain::new());
 
     let app = Router::new()
         .route(
-            "/users",
+            "/identities/create",
             post({
                 let shared_state = Arc::clone(&shared_state);
                 move |body| create_user(body, shared_state)
             }),
         )
         .route(
-            "/users/:id",
+            // TODO: use query params instead of path.
+            "/identities/get/:id",
             get({
                 let shared_state = Arc::clone(&shared_state);
                 move |path| get_user(path, shared_state)
@@ -43,11 +69,18 @@ async fn main() {
         .unwrap();
 }
 
-async fn get_user(Path(user_id): Path<String>, state: Arc<AppState>) {}
+async fn get_user(Path(user_id): Path<String>, state: Arc<IdentityDomain>) {}
 
-async fn create_user(Json(payload): Json<CreateUserPayload>, state: Arc<AppState>) {
-    state.create()
+async fn create_user(Json(payload): Json<CreateUserPayload>, state: Arc<IdentityDomain>) {
+    state
+        .create(IdentityData {
+            id: "Some UUID".to_string(),
+            email: payload.email,
+        })
+        .await
 }
 
 #[derive(Deserialize)]
-struct CreateUserPayload {}
+struct CreateUserPayload {
+    email: String,
+}
