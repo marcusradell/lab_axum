@@ -4,14 +4,14 @@ use axum::{routing::post, Json, Router};
 use serde::Deserialize;
 
 #[derive(Debug, Clone)]
-pub struct IdentityData {
+pub struct CreateData {
     pub _id: String,
     pub _email: String,
 }
 
 #[derive(Clone)]
 struct Repo {
-    _db: Vec<IdentityData>,
+    _db: Vec<CreateData>,
 }
 
 impl Repo {
@@ -19,7 +19,7 @@ impl Repo {
         Self { _db: vec![] }
     }
 
-    async fn create(&self, data: IdentityData) {
+    async fn create(&self, data: CreateData) {
         println!("Identity created! (Fake)");
         dbg!(data);
     }
@@ -42,26 +42,26 @@ impl IdentityDomain {
             "/identities/create",
             post({
                 let shared_state = Arc::clone(&shared_self);
-                move |body| create_user(body, shared_state)
+                move |body| create(body, shared_state)
             }),
         )
     }
 
-    pub async fn create(&self, data: IdentityData) {
+    pub async fn create(&self, data: CreateData) {
         self.repo.create(data).await
     }
 }
 
-pub async fn create_user(Json(payload): Json<CreateUserPayload>, state: Arc<IdentityDomain>) {
+#[derive(Deserialize)]
+pub struct CreateArgs {
+    email: String,
+}
+
+pub async fn create(Json(payload): Json<CreateArgs>, state: Arc<IdentityDomain>) {
     state
-        .create(IdentityData {
+        .create(CreateData {
             _id: "Some UUID".to_string(),
             _email: payload.email,
         })
         .await
-}
-
-#[derive(Deserialize)]
-pub struct CreateUserPayload {
-    email: String,
 }
