@@ -1,14 +1,19 @@
 use std::sync::Arc;
 
-use axum::Json;
+use axum::{
+    extract::Path,
+    routing::{get, post},
+    Json, Router,
+};
 use serde::Deserialize;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct IdentityData {
     pub _id: String,
     pub _email: String,
 }
 
+#[derive(Clone)]
 struct Repo {
     _db: Vec<IdentityData>,
 }
@@ -25,6 +30,7 @@ impl Repo {
     }
 }
 
+#[derive(Clone)]
 pub struct IdentityDomain {
     repo: Repo,
 }
@@ -32,6 +38,27 @@ pub struct IdentityDomain {
 impl IdentityDomain {
     pub fn new() -> Self {
         Self { repo: Repo::new() }
+    }
+
+    pub fn init_routes(&self, router: Router) -> Router {
+        let shared_state = Arc::new((*self).clone());
+
+        router
+            .route(
+                "/identities/create",
+                post({
+                    let shared_state = Arc::clone(&shared_state);
+                    move |body| create_user(body, shared_state)
+                }),
+            )
+            .route(
+                // TODO: use query params instead of path.
+                "/identities/get/:id",
+                get({
+                    let shared_state = Arc::clone(&shared_state);
+                    move |path| get_user(path, shared_state)
+                }),
+            )
     }
 
     pub async fn create(&self, data: IdentityData) {
@@ -52,3 +79,5 @@ pub async fn create_user(Json(payload): Json<CreateUserPayload>, state: Arc<Iden
 pub struct CreateUserPayload {
     email: String,
 }
+
+pub async fn get_user(Path(_user_id): Path<String>, _state: Arc<IdentityDomain>) {}
