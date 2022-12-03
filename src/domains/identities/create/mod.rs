@@ -10,7 +10,7 @@ pub struct Input {
     pub email: String,
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Event {
     pub id: String,
     pub email: String,

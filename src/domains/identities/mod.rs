@@ -3,6 +3,7 @@ use axum::{
     routing::{get, post},
     Json, Router,
 };
+use serde_json::json;
 use sqlx::PgPool;
 use std::sync::Arc;
 use uuid::Uuid;
@@ -53,7 +54,11 @@ impl IdentityDomain {
                 get({
                     let shared_self = Arc::clone(&shared_self);
 
-                    || async move { list::handler(&shared_self.repo).await }
+                    || async move {
+                        Json(json!(list::handler(&shared_self.repo)
+                            .await
+                            .expect("Failed to list.")))
+                    }
                 }),
             )
     }
