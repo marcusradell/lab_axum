@@ -41,8 +41,15 @@ impl IdentityDomain {
         router.route(
             "/identities/create",
             post({
-                let shared_state = Arc::clone(&shared_self);
-                move |body| create(body, shared_state)
+                let shared_self = Arc::clone(&shared_self);
+                |Json(payload): Json<CreateArgs>| async move {
+                    shared_self
+                        .create(CreateData {
+                            _id: "Some UUID".to_string(),
+                            _email: payload.email,
+                        })
+                        .await
+                }
             }),
         )
     }
@@ -55,13 +62,4 @@ impl IdentityDomain {
 #[derive(Deserialize)]
 pub struct CreateArgs {
     email: String,
-}
-
-pub async fn create(Json(payload): Json<CreateArgs>, state: Arc<IdentityDomain>) {
-    state
-        .create(CreateData {
-            _id: "Some UUID".to_string(),
-            _email: payload.email,
-        })
-        .await
 }
