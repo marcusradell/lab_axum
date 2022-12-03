@@ -6,6 +6,7 @@ use axum::{
 use serde::Deserialize;
 use std::{net::SocketAddr, sync::Arc};
 
+#[derive(Debug)]
 struct IdentityData {
     id: String,
     email: String,
@@ -22,7 +23,8 @@ impl Repo {
 
     async fn create(&self, data: IdentityData) {
         // self.db.insert(0, data)
-        println!("Identity created! (Fake)")
+        println!("Identity created! (Fake)");
+        dbg!(data);
     }
 }
 
