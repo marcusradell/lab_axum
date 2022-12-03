@@ -9,7 +9,9 @@ mod domains;
 async fn main() {
     let router = Router::new();
 
-    let (router, _identities) = IdentityDomain::new_with_routes(router);
+    let (identities_router, _identities) = IdentityDomain::new_with_routes();
+
+    let router = router.nest("/identities", identities_router);
 
     let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
 

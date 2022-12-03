@@ -31,7 +31,8 @@ pub struct IdentityDomain {
 }
 
 impl IdentityDomain {
-    pub fn new_with_routes(router: Router) -> (Router, Self) {
+    pub fn new_with_routes() -> (Router, Self) {
+        let router = Router::new();
         let me = Self { repo: Repo::new() };
         let router = me.init_routes(router);
 
@@ -42,7 +43,7 @@ impl IdentityDomain {
         let shared_self = Arc::new(self.clone());
 
         router.route(
-            "/identities/create",
+            "/create",
             post({
                 let shared_self = Arc::clone(&shared_self);
                 |Json(payload): Json<CreateArgs>| async move {
