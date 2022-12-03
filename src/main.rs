@@ -11,13 +11,18 @@ mod ensure_env;
 #[tokio::main]
 async fn main() {
     dotenv().ok();
+    tracing_subscriber::fmt().init();
+
+    tracing::info!("Starting server...");
 
     let db_uri = ensure_env("DATABASE_URL");
 
     let db = PgPoolOptions::new()
         .connect(&db_uri)
         .await
-        .expect("Failed to create database connection pool.");
+        .expect("Failed to create DB pool.");
+
+    tracing::info!("DB pool created.");
 
     let router = Router::new();
 
@@ -26,7 +31,7 @@ async fn main() {
 
     let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
 
-    tracing::debug!("listening on {}", addr);
+    tracing::info!("listening on {}", addr);
 
     axum::Server::bind(&addr)
         .serve(router.into_make_service())
