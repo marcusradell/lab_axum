@@ -1,46 +1,13 @@
 use axum::{
     extract::Path,
     routing::{get, post},
-    Json, Router,
+    Router,
 };
-use serde::Deserialize;
 use std::{net::SocketAddr, sync::Arc};
 
-#[derive(Debug)]
-struct IdentityData {
-    _id: String,
-    _email: String,
-}
+use crate::domains::identities::{create_user, IdentityDomain};
 
-struct Repo {
-    _db: Vec<IdentityData>,
-}
-
-impl Repo {
-    fn new() -> Self {
-        Self { _db: vec![] }
-    }
-
-    async fn create(&self, data: IdentityData) {
-        // self.db.insert(0, data)
-        println!("Identity created! (Fake)");
-        dbg!(data);
-    }
-}
-
-struct IdentityDomain {
-    repo: Repo,
-}
-
-impl IdentityDomain {
-    fn new() -> Self {
-        Self { repo: Repo::new() }
-    }
-
-    async fn create(&self, data: IdentityData) {
-        self.repo.create(data).await
-    }
-}
+mod domains;
 
 #[tokio::main]
 async fn main() {
@@ -72,17 +39,3 @@ async fn main() {
 }
 
 async fn get_user(Path(_user_id): Path<String>, _state: Arc<IdentityDomain>) {}
-
-async fn create_user(Json(payload): Json<CreateUserPayload>, state: Arc<IdentityDomain>) {
-    state
-        .create(IdentityData {
-            _id: "Some UUID".to_string(),
-            _email: payload.email,
-        })
-        .await
-}
-
-#[derive(Deserialize)]
-struct CreateUserPayload {
-    email: String,
-}
