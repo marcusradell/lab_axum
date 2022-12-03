@@ -1,6 +1,7 @@
+use self::repo::CreateRepo;
 use serde::Deserialize;
 
-use super::Repo;
+mod repo;
 
 #[derive(Deserialize)]
 pub struct CreateArgs {
@@ -13,6 +14,6 @@ pub struct CreateData {
     pub _email: String,
 }
 
-pub async fn create(repo: &Repo, data: CreateData) {
+pub async fn create(repo: &impl CreateRepo, data: CreateData) {
     repo.create(data).await
 }

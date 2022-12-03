@@ -1,28 +1,14 @@
+use self::{
+    create::{CreateArgs, CreateData},
+    repo::Repo,
+};
 use axum::{routing::post, Json, Router};
 use create::create;
 use std::sync::Arc;
 use uuid::Uuid;
 
-use self::create::{CreateArgs, CreateData};
-
 mod create;
-
-#[derive(Clone)]
-pub struct Repo {
-    // TODO: Replace with SQLx
-    _db: (),
-}
-
-impl Repo {
-    fn new() -> Self {
-        Self { _db: () }
-    }
-
-    async fn create(&self, data: CreateData) {
-        println!("Identity created! (Fake)");
-        dbg!(data);
-    }
-}
+mod repo;
 
 #[derive(Clone)]
 pub struct IdentityDomain {
