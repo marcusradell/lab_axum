@@ -41,13 +41,13 @@ impl IdentityDomain {
     }
 
     pub fn init_routes(&self, router: Router) -> Router {
-        let shared_state = Arc::new((*self).clone());
+        let shared_self = Arc::new(self.clone());
 
         router
             .route(
                 "/identities/create",
                 post({
-                    let shared_state = Arc::clone(&shared_state);
+                    let shared_state = Arc::clone(&shared_self);
                     move |body| create_user(body, shared_state)
                 }),
             )
@@ -55,7 +55,7 @@ impl IdentityDomain {
                 // TODO: use query params instead of path.
                 "/identities/get/:id",
                 get({
-                    let shared_state = Arc::clone(&shared_state);
+                    let shared_state = Arc::clone(&shared_self);
                     move |path| get_user(path, shared_state)
                 }),
             )
