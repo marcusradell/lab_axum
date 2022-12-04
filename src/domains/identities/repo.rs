@@ -1,4 +1,10 @@
-use sqlx::PgPool;
+use sqlx::{types::Json, PgPool};
+
+use super::create::Event;
+
+pub struct Row {
+    pub data: Json<Event>,
+}
 
 #[derive(Clone)]
 pub struct Repo {

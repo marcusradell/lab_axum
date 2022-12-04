@@ -1,17 +1,14 @@
-use crate::domains::identities::{create::Event, repo::Repo};
+use crate::domains::identities::{
+    create::Event,
+    repo::{Repo, Row},
+};
 use crate::result::Result;
 use async_trait::async_trait;
 use sqlx::types::Json;
-use sqlx::FromRow;
 
 #[async_trait]
 pub trait ListRepo {
     async fn list(&self) -> Result<Vec<Event>>;
-}
-
-#[derive(FromRow)]
-struct Row {
-    data: Json<Event>,
 }
 
 #[async_trait]
