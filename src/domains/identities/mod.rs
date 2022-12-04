@@ -1,5 +1,6 @@
 use self::repo::Repo;
 use axum::{
+    http::StatusCode,
     routing::{get, post},
     Json, Router,
 };
@@ -38,7 +39,7 @@ impl IdentityDomain {
                     email,
                 },
             )
-            .await;
+            .await?;
         }
 
         Ok(())
@@ -62,6 +63,10 @@ impl IdentityDomain {
                             },
                         )
                         .await
+                        .map_err(|e| {
+                            tracing::error!(e);
+                            StatusCode::INTERNAL_SERVER_ERROR
+                        })
                     }
                 }),
             )

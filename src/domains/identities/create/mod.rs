@@ -1,4 +1,5 @@
 use self::repo::CreateRepo;
+use crate::result::Result;
 use serde::{Deserialize, Serialize};
 
 mod repo;
@@ -16,6 +17,7 @@ pub struct Event {
     pub email: String,
 }
 
-pub async fn handler(repo: &impl CreateRepo, event: Event) {
-    repo.create(event).await
+pub async fn handler(repo: &impl CreateRepo, event: Event) -> Result<()> {
+    repo.create(event).await?;
+    Ok(())
 }
