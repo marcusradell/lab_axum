@@ -5,7 +5,7 @@ use axum::{
 };
 use serde_json::json;
 use sqlx::PgPool;
-use std::sync::Arc;
+use std::{error::Error, sync::Arc};
 use uuid::Uuid;
 
 mod create;
@@ -18,13 +18,30 @@ pub struct IdentityDomain {
 }
 
 impl IdentityDomain {
-    pub fn init(db: PgPool) -> Router {
+    pub fn init(db: PgPool) -> (Router, Self) {
         let router = Router::new();
         let me = Self {
             repo: Repo::new(db),
         };
 
-        me.add_routes(router)
+        (me.add_routes(router), me)
+    }
+
+    pub async fn ensure_owner(&self, email: String) -> Result<(), Box<dyn Error>> {
+        let has_identities = list::handler(&self.repo).await?.is_empty();
+
+        if !has_identities {
+            create::handler(
+                &self.repo,
+                create::Event {
+                    id: Uuid::new_v4().to_string(),
+                    email,
+                },
+            )
+            .await;
+        }
+
+        Ok(())
     }
 
     fn add_routes(&self, router: Router) -> Router {

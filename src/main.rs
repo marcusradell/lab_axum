@@ -1,12 +1,12 @@
 use crate::domains::identities::IdentityDomain;
 use axum::Router;
 use dotenv::dotenv;
-use ensure_env::ensure_env;
+use expect_env::expect_env;
 use sqlx::postgres::PgPoolOptions;
 use std::net::SocketAddr;
 
 mod domains;
-mod ensure_env;
+mod expect_env;
 
 #[tokio::main]
 async fn main() {
@@ -15,7 +15,7 @@ async fn main() {
 
     tracing::info!("Starting server...");
 
-    let db_uri = ensure_env("DATABASE_URL");
+    let db_uri = expect_env("DATABASE_URL");
 
     let db = PgPoolOptions::new()
         .connect(&db_uri)
@@ -26,12 +26,18 @@ async fn main() {
 
     let router = Router::new();
 
-    let identities_router = IdentityDomain::init(db.clone());
+    let (identities_router, identities) = IdentityDomain::init(db.clone());
+
+    identities
+        .ensure_owner(expect_env("OWNER"))
+        .await
+        .expect("Failed to ensure owner identity.");
+
     let router = router.nest("/identities", identities_router);
 
     let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
 
-    tracing::info!("listening on {}", addr);
+    tracing::info!("Server listening on {}.", addr);
 
     axum::Server::bind(&addr)
         .serve(router.into_make_service())
