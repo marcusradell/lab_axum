@@ -30,9 +30,9 @@ impl IdentityDomain {
     }
 
     pub async fn ensure_owner(&self, email: String) -> Result<()> {
-        let has_identities = list::handler(&self.repo).await?.is_empty();
+        let identities_repo_is_empty = list::handler(&self.repo).await?.is_empty();
 
-        if !has_identities {
+        if identities_repo_is_empty {
             create::handler(
                 &self.repo,
                 create::Event {
