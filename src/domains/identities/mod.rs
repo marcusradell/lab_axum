@@ -1,4 +1,5 @@
 use self::repo::Repo;
+use crate::result::Result;
 use axum::{
     http::StatusCode,
     routing::{get, post},
@@ -6,7 +7,7 @@ use axum::{
 };
 use serde_json::json;
 use sqlx::PgPool;
-use std::{error::Error, sync::Arc};
+use std::sync::Arc;
 use uuid::Uuid;
 
 mod create;
@@ -28,7 +29,7 @@ impl IdentityDomain {
         (me.add_routes(router), me)
     }
 
-    pub async fn ensure_owner(&self, email: String) -> Result<(), Box<dyn Error>> {
+    pub async fn ensure_owner(&self, email: String) -> Result<()> {
         let has_identities = list::handler(&self.repo).await?.is_empty();
 
         if !has_identities {
