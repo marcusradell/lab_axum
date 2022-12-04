@@ -1,6 +1,6 @@
 use crate::domains::identities::IdentityDomain;
 use axum::Router;
-use dotenv::dotenv;
+use dotenvy::dotenv;
 use expect_env::expect_env;
 use sqlx::postgres::PgPoolOptions;
 use std::net::SocketAddr;
