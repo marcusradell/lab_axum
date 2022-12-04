@@ -1,4 +1,4 @@
-use super::{Event, CREATED};
+use super::{Event, EVENT};
 use crate::domains::identities::repo::Repo;
 use crate::result::Result;
 use async_trait::async_trait;
@@ -28,7 +28,7 @@ impl CreateRepo for Repo {
             "#,
             id,
             1,
-            CREATED,
+            EVENT,
             event as _,
             cid,
             inserted_at

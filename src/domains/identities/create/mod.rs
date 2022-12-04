@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 
 mod repo;
 
-pub const CREATED: &str = "IDENTITIES/CREATED";
+pub const EVENT: &str = "IDENTITIES/CREATED";
 
 #[derive(Deserialize)]
 pub struct Input {
