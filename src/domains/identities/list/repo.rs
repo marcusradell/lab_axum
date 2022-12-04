@@ -1,5 +1,5 @@
 use crate::domains::identities::{
-    create::Event,
+    events::CreatedEvent,
     repo::{Repo, Row},
 };
 use crate::result::Result;
@@ -8,22 +8,22 @@ use sqlx::types::Json;
 
 #[async_trait]
 pub trait ListRepo {
-    async fn list(&self) -> Result<Vec<Event>>;
+    async fn list(&self) -> Result<Vec<CreatedEvent>>;
 }
 
 #[async_trait]
 impl ListRepo for Repo {
-    async fn list(&self) -> Result<Vec<Event>> {
+    async fn list(&self) -> Result<Vec<CreatedEvent>> {
         let rows = sqlx::query_as!(
             Row,
-            r#"select data  as "data: Json<Event>"  from identities.events"#
+            r#"select data  as "data: Json<CreatedEvent>"  from identities.events"#
         )
         .fetch_all(&self.db)
         .await?;
 
-        let result: Vec<Event> = rows
+        let result: Vec<CreatedEvent> = rows
             .iter()
-            .map(|r| Event {
+            .map(|r| CreatedEvent {
                 id: r.data.id.to_string(),
                 email: r.data.email.to_string(),
                 role: r.data.role.clone(),

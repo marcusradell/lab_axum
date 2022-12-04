@@ -1,26 +1,17 @@
 use self::repo::CreateRepo;
 use crate::result::Result;
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 
-use super::role::Role;
+use super::events::CreatedEvent;
 
 mod repo;
-
-pub const EVENT: &str = "IDENTITIES/CREATED";
 
 #[derive(Deserialize)]
 pub struct Input {
     pub email: String,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct Event {
-    pub id: String,
-    pub email: String,
-    pub role: Role,
-}
-
-pub async fn handler(repo: &impl CreateRepo, event: Event) -> Result<()> {
+pub async fn handler(repo: &impl CreateRepo, event: CreatedEvent) -> Result<()> {
     repo.create(event).await?;
     Ok(())
 }

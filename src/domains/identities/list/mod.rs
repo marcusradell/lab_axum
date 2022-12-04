@@ -2,10 +2,10 @@ use crate::result::Result;
 
 use self::repo::ListRepo;
 
-use super::create;
+use super::events::CreatedEvent;
 
 mod repo;
 
-pub async fn handler(repo: &impl ListRepo) -> Result<Vec<create::Event>> {
+pub async fn handler(repo: &impl ListRepo) -> Result<Vec<CreatedEvent>> {
     repo.list().await
 }

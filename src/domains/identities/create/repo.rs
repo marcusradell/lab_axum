@@ -1,5 +1,7 @@
-use super::{Event, EVENT};
-use crate::domains::identities::repo::Repo;
+use crate::domains::identities::{
+    events::{CreatedEvent, CREATED_EVENT},
+    repo::Repo,
+};
 use crate::result::Result;
 use async_trait::async_trait;
 use chrono::Utc;
@@ -8,12 +10,12 @@ use uuid::Uuid;
 
 #[async_trait]
 pub trait CreateRepo {
-    async fn create(&self, event: Event) -> Result<()>;
+    async fn create(&self, event: CreatedEvent) -> Result<()>;
 }
 
 #[async_trait]
 impl CreateRepo for Repo {
-    async fn create(&self, event: Event) -> Result<()> {
+    async fn create(&self, event: CreatedEvent) -> Result<()> {
         let id = Uuid::new_v4();
         let cid = Uuid::new_v4();
         let inserted_at = Utc::now();
@@ -28,7 +30,7 @@ impl CreateRepo for Repo {
             "#,
             id,
             1,
-            EVENT,
+            CREATED_EVENT,
             event as _,
             cid,
             inserted_at

@@ -1,9 +1,8 @@
+use super::events::CreatedEvent;
 use sqlx::{types::Json, PgPool};
 
-use super::create::Event;
-
 pub struct Row {
-    pub data: Json<Event>,
+    pub data: Json<CreatedEvent>,
 }
 
 #[derive(Clone)]

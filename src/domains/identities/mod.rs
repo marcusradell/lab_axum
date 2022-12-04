@@ -11,6 +11,7 @@ use std::sync::Arc;
 use uuid::Uuid;
 
 mod create;
+mod events;
 mod list;
 mod repo;
 mod role;
@@ -36,7 +37,7 @@ impl IdentityDomain {
         if identities_repo_is_empty {
             create::handler(
                 &self.repo,
-                create::Event {
+                events::CreatedEvent {
                     id: Uuid::new_v4().to_string(),
                     email,
                     role: Role::Owner,
@@ -60,7 +61,7 @@ impl IdentityDomain {
                     |Json(input): Json<create::Input>| async move {
                         create::handler(
                             &shared_self.repo,
-                            create::Event {
+                            events::CreatedEvent {
                                 id: Uuid::new_v4().to_string(),
                                 email: input.email,
                                 role: Role::Member,
