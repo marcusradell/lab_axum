@@ -27,6 +27,7 @@ impl ListRepo for Repo {
             .map(|r| Event {
                 id: r.data.id.to_string(),
                 email: r.data.email.to_string(),
+                role: r.data.role.clone(),
             })
             .collect();
 

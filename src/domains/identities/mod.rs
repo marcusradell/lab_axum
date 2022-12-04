@@ -1,4 +1,4 @@
-use self::repo::Repo;
+use self::{repo::Repo, role::Role};
 use crate::result::Result;
 use axum::{
     http::StatusCode,
@@ -13,6 +13,7 @@ use uuid::Uuid;
 mod create;
 mod list;
 mod repo;
+mod role;
 
 #[derive(Clone)]
 pub struct IdentityDomain {
@@ -38,6 +39,7 @@ impl IdentityDomain {
                 create::Event {
                     id: Uuid::new_v4().to_string(),
                     email,
+                    role: Role::Owner,
                 },
             )
             .await?;
@@ -61,6 +63,7 @@ impl IdentityDomain {
                             create::Event {
                                 id: Uuid::new_v4().to_string(),
                                 email: input.email,
+                                role: Role::Member,
                             },
                         )
                         .await
