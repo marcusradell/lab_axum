@@ -1,11 +1,11 @@
-use std::error::Error;
+use crate::result::Result;
 
 use self::repo::ListRepo;
 
-use super::create::Event;
+use super::create;
 
 mod repo;
 
-pub async fn handler(repo: &impl ListRepo) -> Result<Vec<Event>, Box<dyn Error>> {
+pub async fn handler(repo: &impl ListRepo) -> Result<Vec<create::Event>> {
     repo.list().await
 }

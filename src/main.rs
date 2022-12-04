@@ -7,6 +7,7 @@ use std::net::SocketAddr;
 
 mod domains;
 mod expect_env;
+mod result;
 
 #[tokio::main]
 async fn main() {
