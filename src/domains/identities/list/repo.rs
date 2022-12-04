@@ -14,7 +14,7 @@ pub trait ListRepo {
 #[async_trait]
 impl ListRepo for Repo {
     async fn list(&self) -> Result<Vec<CreatedEvent>> {
-        let rows = sqlx::query_as!(
+        let rows: Vec<Row> = sqlx::query_as!(
             Row,
             r#"select data  as "data: Json<CreatedEvent>"  from identities.events"#
         )
