@@ -1,4 +1,6 @@
-use jsonwebtoken::EncodingKey;
+use crate::result::Result;
+use claims::Claims;
+use jsonwebtoken::{encode, EncodingKey, Header};
 
 pub mod claims;
 
@@ -11,5 +13,11 @@ impl Jwt {
         Self {
             encodingKey: EncodingKey::from_secret(secret.as_ref()),
         }
+    }
+
+    pub fn encode(&self, claims: &Claims) -> Result<String> {
+        let token = encode(&Header::default(), claims, &self.encodingKey)?;
+
+        Ok(token)
     }
 }
