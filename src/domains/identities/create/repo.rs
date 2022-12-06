@@ -10,12 +10,12 @@ use uuid::Uuid;
 
 #[async_trait]
 pub trait CreateRepo {
-    async fn create(&self, event: CreatedEvent) -> Result<()>;
+    async fn create(&self, event: &CreatedEvent) -> Result<()>;
 }
 
 #[async_trait]
 impl CreateRepo for Repo {
-    async fn create(&self, event: CreatedEvent) -> Result<()> {
+    async fn create(&self, event: &CreatedEvent) -> Result<()> {
         let id = Uuid::new_v4();
         let cid = Uuid::new_v4();
         let inserted_at = Utc::now();

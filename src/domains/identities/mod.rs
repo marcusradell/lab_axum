@@ -1,10 +1,14 @@
-use self::{repo::Repo, role::Role};
-use crate::result::Result;
+use self::repo::Repo;
+use crate::{
+    io::{env, jwt::Jwt},
+    result::Result,
+};
 use axum::{
     http::StatusCode,
     routing::{get, post},
     Json, Router,
 };
+pub use role::Role;
 use serde_json::json;
 use sqlx::PgPool;
 use std::sync::Arc;
@@ -19,6 +23,7 @@ mod role;
 #[derive(Clone)]
 pub struct IdentityDomain {
     repo: Repo,
+    jwt: Jwt,
 }
 
 impl IdentityDomain {
@@ -26,6 +31,7 @@ impl IdentityDomain {
         let router = Router::new();
         let me = Self {
             repo: Repo::new(db),
+            jwt: Jwt::new(&env::expect_env("JWT_SECRET")),
         };
 
         (me.add_routes(router), me)
@@ -37,6 +43,7 @@ impl IdentityDomain {
         if identities_repo_is_empty {
             create::handler(
                 &self.repo,
+                &self.jwt,
                 events::CreatedEvent {
                     id: Uuid::new_v4().to_string(),
                     email,
@@ -59,8 +66,9 @@ impl IdentityDomain {
                     let shared_self = Arc::clone(&shared_self);
 
                     |Json(input): Json<create::Input>| async move {
-                        create::handler(
+                        let output = create::handler(
                             &shared_self.repo,
+                            &shared_self.jwt,
                             events::CreatedEvent {
                                 id: Uuid::new_v4().to_string(),
                                 email: input.email,
@@ -72,6 +80,9 @@ impl IdentityDomain {
                             tracing::error!(e);
                             StatusCode::INTERNAL_SERVER_ERROR
                         })
+                        .expect("Failed to create identity.");
+
+                        Json(json!(output))
                     }
                 }),
             )
@@ -83,7 +94,7 @@ impl IdentityDomain {
                     || async move {
                         Json(json!(list::handler(&shared_self.repo)
                             .await
-                            .expect("Failed to list.")))
+                            .expect("Failed to list identities.")))
                     }
                 }),
             )
