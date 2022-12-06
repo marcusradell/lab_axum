@@ -21,14 +21,7 @@ impl ListRepo for Repo {
         .fetch_all(&self.db)
         .await?;
 
-        let result: Vec<CreatedEvent> = rows
-            .iter()
-            .map(|r| CreatedEvent {
-                id: r.data.id.to_string(),
-                email: r.data.email.to_string(),
-                role: r.data.role.clone(),
-            })
-            .collect();
+        let result: Vec<CreatedEvent> = rows.iter().map(|r| r.data.0.clone()).collect();
 
         Ok(result)
     }
