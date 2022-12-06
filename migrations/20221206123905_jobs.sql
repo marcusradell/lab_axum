@@ -1,7 +1,8 @@
+-- Add migration script here
 
-create schema if not exists identities;
+create schema if not exists jobs;
 
-create table if not exists identities.events (
+create table if not exists jobs.events (
     -- Used to order events.
     sequence_num bigserial not null,
     -- ID for the entity that the events apply to.
@@ -23,4 +24,4 @@ create table if not exists identities.events (
 );
 
 -- Helps us to query for all the events for a specific stream.
-CREATE INDEX identities_idx_event_stream_id ON identities.events (stream_id);
+CREATE INDEX jobs_idx_event_stream_id ON jobs.events (stream_id);
