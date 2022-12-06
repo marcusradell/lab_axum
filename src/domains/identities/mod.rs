@@ -61,7 +61,7 @@ impl IdentityDomain {
 
         router
             .route(
-                "/create",
+                "/create_member",
                 post({
                     let shared_self = Arc::clone(&shared_self);
 
