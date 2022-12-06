@@ -1,4 +1,4 @@
-use crate::domains::identities::IdentityDomain;
+use crate::domains::{identities::IdentityDomain, jobs::JobsDomain};
 use axum::Router;
 use dotenvy::dotenv;
 use io::env::expect_env;
@@ -27,9 +27,11 @@ async fn main() {
 
     let router = Router::new();
 
-    let (identities_router, identities) = IdentityDomain::init(db.clone()).await;
-
+    let (identities_router) = IdentityDomain::init(db.clone()).await;
     let router = router.nest("/identities", identities_router);
+
+    let jobs_router = JobsDomain::init();
+    let router = router.nest("/jobs", jobs_router);
 
     let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
 

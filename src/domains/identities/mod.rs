@@ -30,7 +30,7 @@ pub struct IdentityDomain {
 }
 
 impl IdentityDomain {
-    pub async fn init(db: PgPool) -> (Router, Self) {
+    pub async fn init(db: PgPool) -> Router {
         let router = Router::new();
         let me = Self {
             repo: Repo::new(db),
@@ -41,7 +41,7 @@ impl IdentityDomain {
             .await
             .expect("Failed to ensure owner identity.");
 
-        (me.add_routes(router), me)
+        me.add_routes(router)
     }
 
     pub async fn ensure_owner(&self, email: String) -> Result<()> {
