@@ -1,6 +1,9 @@
 use self::repo::Repo;
 use crate::{
-    io::{env, jwt::Jwt},
+    io::{
+        env::{self, expect_env},
+        jwt::Jwt,
+    },
     result::Result,
 };
 use axum::{
@@ -27,12 +30,16 @@ pub struct IdentityDomain {
 }
 
 impl IdentityDomain {
-    pub fn init(db: PgPool) -> (Router, Self) {
+    pub async fn init(db: PgPool) -> (Router, Self) {
         let router = Router::new();
         let me = Self {
             repo: Repo::new(db),
             jwt: Jwt::new(&env::expect_env("JWT_SECRET")),
         };
+
+        me.ensure_owner(expect_env("OWNER"))
+            .await
+            .expect("Failed to ensure owner identity.");
 
         (me.add_routes(router), me)
     }

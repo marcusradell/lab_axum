@@ -27,12 +27,7 @@ async fn main() {
 
     let router = Router::new();
 
-    let (identities_router, identities) = IdentityDomain::init(db.clone());
-
-    identities
-        .ensure_owner(expect_env("OWNER"))
-        .await
-        .expect("Failed to ensure owner identity.");
+    let (identities_router, identities) = IdentityDomain::init(db.clone()).await;
 
     let router = router.nest("/identities", identities_router);
 
