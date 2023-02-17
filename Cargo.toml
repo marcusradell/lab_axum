@@ -3,16 +3,18 @@ name = "lab_axum"
 version = "0.1.0"
 edition = "2021"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[workspace]
+resolver = "2" # Needed for prisma to work if this becomes a virtual workspace.
+members = ["prisma_cli"]
 
 [dependencies]
+prisma-client-rust = { git = "https://github.com/Brendonovich/prisma-client-rust", tag = "0.6.4", features=["postgresql"] }
 async-trait = "0.1.59"
 axum = "0.6.1"
 chrono = {version="0.4.23", features = ["serde"]}
 dotenvy = "0.15.6"
 serde = {version= "1.0.148", features = ["derive"]}
 serde_json = {version="1.0.89"}
-sqlx = {version = "0.6.2", features = ["runtime-tokio-rustls", "postgres", "chrono", "uuid", "json"]}
 tokio = {version = "1.22.0", features = ["full"]}
 tracing = "0.1.37"
 tracing-subscriber = {version="0.3.16", features=["env-filter"]}

@@ -1,8 +1,8 @@
-use self::repo::Repo;
 use crate::{
     io::{
         env::{self, expect_env},
         jwt::Jwt,
+        repo::Repo,
     },
     result::Result,
 };
@@ -13,14 +13,12 @@ use axum::{
 };
 pub use role::Role;
 use serde_json::json;
-use sqlx::PgPool;
 use std::sync::Arc;
 use uuid::Uuid;
 
 mod create;
 mod events;
 mod list;
-mod repo;
 mod role;
 
 #[derive(Clone)]
@@ -30,10 +28,10 @@ pub struct IdentityDomain {
 }
 
 impl IdentityDomain {
-    pub async fn init(db: PgPool) -> Router {
+    pub async fn init(repo: Repo) -> Router {
         let router = Router::new();
         let me = Self {
-            repo: Repo::new(db),
+            repo,
             jwt: Jwt::new(&env::expect_env("JWT_SECRET")),
         };
 

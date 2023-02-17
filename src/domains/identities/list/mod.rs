@@ -1,8 +1,6 @@
-use crate::result::Result;
-
 use self::repo::ListRepo;
-
 use super::events::CreatedEvent;
+use crate::result::Result;
 
 mod repo;
 

@@ -1,10 +1,7 @@
-use crate::domains::identities::{
-    events::CreatedEvent,
-    repo::{Repo, Row},
-};
 use crate::result::Result;
+use crate::{domains::identities::events::CreatedEvent, io::repo::Repo};
 use async_trait::async_trait;
-use sqlx::types::Json;
+use serde_json::Value;
 
 #[async_trait]
 pub trait ListRepo {
@@ -14,15 +11,20 @@ pub trait ListRepo {
 #[async_trait]
 impl ListRepo for Repo {
     async fn list(&self) -> Result<Vec<CreatedEvent>> {
-        let rows: Vec<Row> = sqlx::query_as!(
-            Row,
-            r#"select data  as "data: Json<CreatedEvent>"  from identities.events"#
-        )
-        .fetch_all(&self.db)
-        .await?;
+        let rows = self
+            .prismaClient
+            .identity_event()
+            .find_many(vec![])
+            .exec()
+            .await?;
 
-        let result: Vec<CreatedEvent> = rows.iter().map(|r| r.data.0.clone()).collect();
+        let json: Vec<Value> = rows.iter().map(|r| r.data.clone()).collect();
 
-        Ok(result)
+        let deserialized = json
+            .iter()
+            .map(|value| serde_json::from_value::<CreatedEvent>(value.clone()))
+            .collect::<std::result::Result<Vec<CreatedEvent>, serde_json::Error>>()?;
+
+        Ok(deserialized)
     }
 }
