@@ -3,30 +3,26 @@ use crate::result::Result;
 use crate::services::identity::events::CreatedEvent;
 use async_trait::async_trait;
 use chrono::{DateTime, FixedOffset, Utc};
-use uuid::Uuid;
 
 #[async_trait]
 pub trait CreateRepo {
-    async fn create(&self, event: &CreatedEvent) -> Result<()>;
+    async fn sign_in(&self, created_event: &CreatedEvent) -> Result<()>;
 }
 
 #[async_trait]
 impl CreateRepo for Repo {
-    async fn create(&self, event: &CreatedEvent) -> Result<()> {
-        let id = Uuid::new_v4();
-        let cid = Uuid::new_v4();
+    async fn sign_in(&self, created_event: &CreatedEvent) -> Result<()> {
         let inserted_at: DateTime<FixedOffset> = Utc::now().into();
-        // let event = Json(event);
         let version = 0;
 
         self.prisma_client
             .identity_event()
             .create(
-                id.to_string(),
+                created_event.id.to_string(),
                 version,
                 "identity/create".to_string(),
-                serde_json::to_value(event)?,
-                cid.to_string(),
+                serde_json::to_value(created_event)?,
+                created_event.cid.to_string(),
                 inserted_at,
                 vec![],
             )

@@ -1,4 +1,4 @@
-use self::events::CreatedEvent;
+use self::events::{CreatedEvent, CREATED_EVENT};
 use crate::{
     io::{
         env::{self, expect_env},
@@ -16,10 +16,10 @@ pub use role::Role;
 use serde_json::json;
 use uuid::Uuid;
 
-mod create;
 mod events;
 mod list;
 mod role;
+mod sign_in;
 
 #[derive(Clone)]
 pub struct Service {
@@ -45,13 +45,15 @@ impl Service {
         let identities_repo_is_empty = list::handler(&self.repo).await?.is_empty();
 
         if identities_repo_is_empty {
-            create::handler(
+            sign_in::handler(
                 &self.repo,
                 &self.jwt,
                 events::CreatedEvent {
+                    r#type: CREATED_EVENT.to_string(),
                     id: Uuid::new_v4().to_string(),
                     email,
                     role: Role::Owner,
+                    cid: Uuid::new_v4().to_string(),
                 },
             )
             .await?;
@@ -60,8 +62,8 @@ impl Service {
         Ok(())
     }
 
-    pub async fn create(&self, created_event: CreatedEvent) -> Result<create::Output> {
-        create::handler(&self.repo, &self.jwt, created_event).await
+    pub async fn sign_in(&self, created_event: CreatedEvent) -> Result<sign_in::Output> {
+        sign_in::handler(&self.repo, &self.jwt, created_event).await
     }
 
     pub async fn list(&self) -> Result<Vec<CreatedEvent>> {
@@ -74,16 +76,18 @@ pub fn new_routes(service: &Service) -> Router {
 
     router
         .route(
-            "/create_member",
+            "/sign_in",
             post({
                 let service = service.clone();
 
-                |Json(input): Json<create::Input>| async move {
+                |Json(input): Json<sign_in::Input>| async move {
                     let output = service
-                        .create(events::CreatedEvent {
-                            id: Uuid::new_v4().to_string(),
-                            email: input.email,
+                        .sign_in(events::CreatedEvent {
+                            r#type: CREATED_EVENT.to_string(),
                             role: Role::Member,
+                            email: input.email,
+                            id: Uuid::new_v4().to_string(),
+                            cid: Uuid::new_v4().to_string(),
                         })
                         .await
                         .map_err(|e| {
