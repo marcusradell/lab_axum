@@ -1,9 +1,9 @@
 use crate::{
-    domains::{
+    io::repo::Repo,
+    services::{
         identities::{self, IdentityDomain},
         jobs::JobsDomain,
     },
-    io::repo::Repo,
 };
 use axum::Router;
 use dotenvy::dotenv;
@@ -11,10 +11,10 @@ use io::env::expect_env;
 use prisma::PrismaClient;
 use std::{error::Error, net::SocketAddr, sync::Arc};
 
-mod domains;
 mod io;
 mod prisma;
 mod result;
+mod services;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {

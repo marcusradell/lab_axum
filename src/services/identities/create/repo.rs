@@ -1,6 +1,6 @@
-use crate::domains::identities::events::CreatedEvent;
 use crate::io::repo::Repo;
 use crate::result::Result;
+use crate::services::identities::events::CreatedEvent;
 use async_trait::async_trait;
 use chrono::{DateTime, FixedOffset, Utc};
 use uuid::Uuid;
