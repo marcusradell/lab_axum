@@ -1,6 +1,6 @@
 use crate::{
     io::repo::Repo,
-    services::identity::{self, IdentityDomain},
+    services::identity::{self},
 };
 use axum::Router;
 use dotenvy::dotenv;
@@ -30,10 +30,10 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     tracing::info!("DB pool created.");
 
-    let identities_domain = IdentityDomain::init(repo.clone()).await;
+    let identity_service = identity::Service::init(repo.clone()).await;
 
     let router = Router::new();
-    let router = router.nest("/identity", identity::new_routes(&identities_domain));
+    let router = router.nest("/identity", identity::new_routes(&identity_service));
 
     let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
 

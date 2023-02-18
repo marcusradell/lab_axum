@@ -1,3 +1,4 @@
+use self::events::CreatedEvent;
 use crate::{
     io::{
         env::{self, expect_env},
@@ -13,7 +14,6 @@ use axum::{
 };
 pub use role::Role;
 use serde_json::json;
-use std::sync::Arc;
 use uuid::Uuid;
 
 mod create;
@@ -22,12 +22,12 @@ mod list;
 mod role;
 
 #[derive(Clone)]
-pub struct IdentityDomain {
+pub struct Service {
     repo: Repo,
     jwt: Jwt,
 }
 
-impl IdentityDomain {
+impl Service {
     pub async fn init(repo: Repo) -> Self {
         let me = Self {
             repo,
@@ -59,35 +59,38 @@ impl IdentityDomain {
 
         Ok(())
     }
+
+    pub async fn create(&self, created_event: CreatedEvent) -> Result<create::Output> {
+        create::handler(&self.repo, &self.jwt, created_event).await
+    }
+
+    pub async fn list(&self) -> Result<Vec<CreatedEvent>> {
+        list::handler(&self.repo).await
+    }
 }
 
-pub fn new_routes(identity_domain: &IdentityDomain) -> Router {
-    let identity_domain = Arc::new(identity_domain.clone());
-
+pub fn new_routes(service: &Service) -> Router {
     let router: Router = Router::new();
 
     router
         .route(
             "/create_member",
             post({
-                let shared_self = Arc::clone(&identity_domain);
+                let service = service.clone();
 
                 |Json(input): Json<create::Input>| async move {
-                    let output = create::handler(
-                        &shared_self.repo,
-                        &shared_self.jwt,
-                        events::CreatedEvent {
+                    let output = service
+                        .create(events::CreatedEvent {
                             id: Uuid::new_v4().to_string(),
                             email: input.email,
                             role: Role::Member,
-                        },
-                    )
-                    .await
-                    .map_err(|e| {
-                        tracing::error!(e);
-                        StatusCode::INTERNAL_SERVER_ERROR
-                    })
-                    .expect("Failed to create identity.");
+                        })
+                        .await
+                        .map_err(|e| {
+                            tracing::error!(e);
+                            StatusCode::INTERNAL_SERVER_ERROR
+                        })
+                        .expect("Failed to create identity.");
 
                     Json(json!(output))
                 }
@@ -96,10 +99,11 @@ pub fn new_routes(identity_domain: &IdentityDomain) -> Router {
         .route(
             "/list",
             get({
-                let shared_self = Arc::clone(&identity_domain);
+                let service = service.clone();
 
                 || async move {
-                    Json(json!(list::handler(&shared_self.repo)
+                    Json(json!(service
+                        .list()
                         .await
                         .expect("Failed to list identities.")))
                 }
