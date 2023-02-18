@@ -19,7 +19,7 @@ impl CreateRepo for Repo {
         // let event = Json(event);
         let version = 0;
 
-        self.prismaClient
+        self.prisma_client
             .identity_event()
             .create(
                 id.to_string(),

@@ -22,10 +22,10 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     let db_uri = expect_env("DATABASE_URL");
 
-    let prismaClient = PrismaClient::_builder().with_url(db_uri).build().await?;
+    let prisma_client = PrismaClient::_builder().with_url(db_uri).build().await?;
 
     let repo = Repo {
-        prismaClient: Arc::new(prismaClient),
+        prisma_client: Arc::new(prisma_client),
     };
 
     tracing::info!("DB pool created.");

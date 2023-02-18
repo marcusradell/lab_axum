@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 
 use super::role::Role;
 
-pub const CREATED_EVENT: &str = "IDENTITIES/CREATED";
+pub const _CREATED_EVENT: &str = "identity/created";
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CreatedEvent {

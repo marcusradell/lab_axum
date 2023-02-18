@@ -12,7 +12,7 @@ pub trait ListRepo {
 impl ListRepo for Repo {
     async fn list(&self) -> Result<Vec<CreatedEvent>> {
         let rows = self
-            .prismaClient
+            .prisma_client
             .identity_event()
             .find_many(vec![])
             .exec()

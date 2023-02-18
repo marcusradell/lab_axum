@@ -3,5 +3,5 @@ use std::sync::Arc;
 
 #[derive(Clone)]
 pub struct Repo {
-    pub prismaClient: Arc<PrismaClient>,
+    pub prisma_client: Arc<PrismaClient>,
 }

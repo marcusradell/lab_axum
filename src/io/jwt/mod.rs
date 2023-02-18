@@ -9,14 +9,14 @@ pub mod claims;
 #[derive(Clone)]
 pub struct Jwt {
     encoding_key: EncodingKey,
-    decoding_key: DecodingKey,
+    _decoding_key: DecodingKey,
 }
 
 impl Jwt {
     pub fn new(secret: &str) -> Self {
         Self {
             encoding_key: EncodingKey::from_secret(secret.as_ref()),
-            decoding_key: DecodingKey::from_secret(secret.as_ref()),
+            _decoding_key: DecodingKey::from_secret(secret.as_ref()),
         }
     }
 
@@ -32,8 +32,8 @@ impl Jwt {
         Ok(token)
     }
 
-    pub fn decode(&self, token: &str) -> Result<Claims> {
-        let token = decode::<Claims>(&token, &self.decoding_key, &Validation::default())?;
+    pub fn _decode(&self, token: &str) -> Result<Claims> {
+        let token = decode::<Claims>(token, &self._decoding_key, &Validation::default())?;
 
         Ok(token.claims)
     }
