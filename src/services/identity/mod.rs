@@ -45,10 +45,10 @@ impl Service {
         me
     }
 
-    pub async fn ensure_owner(&self, email: String) -> Result<()> {
-        let identities_repo_is_empty = list::handler(&self.repo).await?.is_empty();
+    async fn ensure_owner(&self, email: String) -> Result<()> {
+        let identity_repo_is_empty = list::handler(&self.repo).await?.is_empty();
 
-        if identities_repo_is_empty {
+        if identity_repo_is_empty {
             sign_in::handler(
                 &self.repo,
                 &self.jwt,
