@@ -1,5 +1,5 @@
 use crate::result::Result;
-use crate::{io::repo::Repo, services::identities::events::CreatedEvent};
+use crate::{io::repo::Repo, services::identity::events::CreatedEvent};
 use async_trait::async_trait;
 use serde_json::Value;
 

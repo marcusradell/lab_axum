@@ -1,5 +1,5 @@
 use crate::result::Result;
-use crate::services::identities::Role;
+use crate::services::identity::Role;
 use chrono::{Duration, Utc};
 use claims::Claims;
 use jsonwebtoken::{decode, encode, DecodingKey, EncodingKey, Header, Validation};

@@ -1,9 +1,6 @@
 use crate::{
     io::repo::Repo,
-    services::{
-        identities::{self, IdentityDomain},
-        jobs::JobsDomain,
-    },
+    services::identity::{self, IdentityDomain},
 };
 use axum::Router;
 use dotenvy::dotenv;
@@ -35,11 +32,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     let identities_domain = IdentityDomain::init(repo.clone()).await;
 
-    let jobs_router = JobsDomain::init();
-
     let router = Router::new();
-    let router = router.nest("/identities", identities::new_routes(&identities_domain));
-    let router = router.nest("/jobs", jobs_router);
+    let router = router.nest("/identity", identity::new_routes(&identities_domain));
 
     let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
 
