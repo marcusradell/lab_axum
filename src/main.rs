@@ -1,5 +1,8 @@
 use crate::{
-    domains::{identities::IdentityDomain, jobs::JobsDomain},
+    domains::{
+        identities::{self, IdentityDomain},
+        jobs::JobsDomain,
+    },
     io::repo::Repo,
 };
 use axum::Router;
@@ -30,12 +33,12 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     tracing::info!("DB pool created.");
 
-    let router = Router::new();
-
-    let identities_router = IdentityDomain::init(repo.clone()).await;
-    let router = router.nest("/identities", identities_router);
+    let identities_domain = IdentityDomain::init(repo.clone()).await;
 
     let jobs_router = JobsDomain::init();
+
+    let router = Router::new();
+    let router = router.nest("/identities", identities::new_routes(&identities_domain));
     let router = router.nest("/jobs", jobs_router);
 
     let addr = SocketAddr::from(([127, 0, 0, 1], 3000));

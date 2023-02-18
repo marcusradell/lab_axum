@@ -28,8 +28,7 @@ pub struct IdentityDomain {
 }
 
 impl IdentityDomain {
-    pub async fn init(repo: Repo) -> Router {
-        let router = Router::new();
+    pub async fn init(repo: Repo) -> Self {
         let me = Self {
             repo,
             jwt: Jwt::new(&env::expect_env("JWT_SECRET")),
@@ -39,7 +38,7 @@ impl IdentityDomain {
             .await
             .expect("Failed to ensure owner identity.");
 
-        me.add_routes(router)
+        me
     }
 
     pub async fn ensure_owner(&self, email: String) -> Result<()> {
@@ -60,48 +59,50 @@ impl IdentityDomain {
 
         Ok(())
     }
+}
 
-    fn add_routes(&self, router: Router) -> Router {
-        let shared_self = Arc::new(self.clone());
+pub fn new_routes(identity_domain: &IdentityDomain) -> Router {
+    let identity_domain = Arc::new(identity_domain.clone());
 
-        router
-            .route(
-                "/create_member",
-                post({
-                    let shared_self = Arc::clone(&shared_self);
+    let router: Router = Router::new();
 
-                    |Json(input): Json<create::Input>| async move {
-                        let output = create::handler(
-                            &shared_self.repo,
-                            &shared_self.jwt,
-                            events::CreatedEvent {
-                                id: Uuid::new_v4().to_string(),
-                                email: input.email,
-                                role: Role::Member,
-                            },
-                        )
+    router
+        .route(
+            "/create_member",
+            post({
+                let shared_self = Arc::clone(&identity_domain);
+
+                |Json(input): Json<create::Input>| async move {
+                    let output = create::handler(
+                        &shared_self.repo,
+                        &shared_self.jwt,
+                        events::CreatedEvent {
+                            id: Uuid::new_v4().to_string(),
+                            email: input.email,
+                            role: Role::Member,
+                        },
+                    )
+                    .await
+                    .map_err(|e| {
+                        tracing::error!(e);
+                        StatusCode::INTERNAL_SERVER_ERROR
+                    })
+                    .expect("Failed to create identity.");
+
+                    Json(json!(output))
+                }
+            }),
+        )
+        .route(
+            "/list",
+            get({
+                let shared_self = Arc::clone(&identity_domain);
+
+                || async move {
+                    Json(json!(list::handler(&shared_self.repo)
                         .await
-                        .map_err(|e| {
-                            tracing::error!(e);
-                            StatusCode::INTERNAL_SERVER_ERROR
-                        })
-                        .expect("Failed to create identity.");
-
-                        Json(json!(output))
-                    }
-                }),
-            )
-            .route(
-                "/list",
-                get({
-                    let shared_self = Arc::clone(&shared_self);
-
-                    || async move {
-                        Json(json!(list::handler(&shared_self.repo)
-                            .await
-                            .expect("Failed to list identities.")))
-                    }
-                }),
-            )
-    }
+                        .expect("Failed to list identities.")))
+                }
+            }),
+        )
 }
