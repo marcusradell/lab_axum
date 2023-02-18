@@ -52,13 +52,7 @@ impl Service {
             sign_in::handler(
                 &self.repo,
                 &self.jwt,
-                events::CreatedEvent {
-                    r#type: CREATED_EVENT.to_string(),
-                    id: Uuid::new_v4().to_string(),
-                    email,
-                    role: Role::Owner,
-                    cid: Uuid::new_v4().to_string(),
-                },
+                events::CreatedEvent::new(Uuid::new_v4(), email, Role::Owner, Uuid::new_v4()),
             )
             .await?;
         }
@@ -86,13 +80,12 @@ pub fn new_routes(service: &Service) -> Router {
 
                 |Json(input): Json<sign_in::Input>| async move {
                     let output = service
-                        .sign_in(events::CreatedEvent {
-                            r#type: CREATED_EVENT.to_string(),
-                            role: Role::Member,
-                            email: input.email,
-                            id: Uuid::new_v4().to_string(),
-                            cid: Uuid::new_v4().to_string(),
-                        })
+                        .sign_in(events::CreatedEvent::new(
+                            Uuid::new_v4(),
+                            input.email,
+                            Role::Owner,
+                            Uuid::new_v4(),
+                        ))
                         .await
                         .map_err(|e| {
                             tracing::error!(e);
