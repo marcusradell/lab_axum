@@ -1,4 +1,7 @@
-use self::events::{CreatedEvent, CREATED_EVENT};
+use self::{
+    events::{CreatedEvent, CREATED_EVENT},
+    sign_in::Output,
+};
 use crate::{
     io::{
         env::{self, expect_env},
@@ -9,6 +12,7 @@ use crate::{
 };
 use axum::{
     http::StatusCode,
+    response::ErrorResponse,
     routing::{get, post},
     Json, Router,
 };
@@ -93,10 +97,9 @@ pub fn new_routes(service: &Service) -> Router {
                         .map_err(|e| {
                             tracing::error!(e);
                             StatusCode::INTERNAL_SERVER_ERROR
-                        })
-                        .expect("Failed to create identity.");
+                        })?;
 
-                    Json(json!(output))
+                    Ok::<Json<Output>, ErrorResponse>(Json(output))
                 }
             }),
         )
