@@ -18,6 +18,6 @@ pub struct Output {
 
 pub async fn handler(repo: &impl CreateRepo, jwt: &Jwt, event: CreatedEvent) -> Result<Output> {
     repo.sign_in(&event).await?;
-    let token = jwt.encode(&event.id, &event.role)?;
+    let token = jwt.encode(&event.stream_id, &event.role)?;
     Ok(Output { token })
 }

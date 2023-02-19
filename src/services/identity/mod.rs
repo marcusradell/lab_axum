@@ -13,6 +13,7 @@ use axum::{
     routing::{get, post},
     Json, Router,
 };
+use chrono::Utc;
 pub use role::Role;
 use serde_json::json;
 use uuid::Uuid;
@@ -49,7 +50,13 @@ impl Service {
             sign_in::handler(
                 &self.repo,
                 &self.jwt,
-                events::CreatedEvent::new(Uuid::new_v4(), email, Role::Owner, Uuid::new_v4()),
+                events::CreatedEvent::new(
+                    Uuid::new_v4(),
+                    email,
+                    Role::Owner,
+                    Utc::now(),
+                    Uuid::new_v4(),
+                ),
             )
             .await?;
         }
@@ -81,6 +88,7 @@ pub fn new_routes(service: &Service) -> Router {
                             Uuid::new_v4(),
                             input.email,
                             Role::Owner,
+                            Utc::now(),
                             Uuid::new_v4(),
                         ))
                         .await
