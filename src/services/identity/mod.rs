@@ -18,7 +18,7 @@ pub use role::Role;
 use serde_json::json;
 use uuid::Uuid;
 
-mod events;
+pub mod events;
 mod list;
 mod role;
 mod sign_in;
