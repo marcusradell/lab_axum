@@ -20,3 +20,10 @@ model IdentityEvent {
   @@unique([stream_id, version])
   @@index([stream_id, version])
 }
+
+model IdentityVerification {
+  id          String   @id
+  email       String
+  code        String
+  inserted_at DateTime
+}

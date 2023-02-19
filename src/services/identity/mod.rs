@@ -22,6 +22,7 @@ pub mod events;
 mod list;
 mod role;
 mod sign_in;
+mod verify;
 
 #[derive(Clone)]
 pub struct Service {
@@ -68,6 +69,14 @@ impl Service {
         sign_in::handler(&self.repo, &self.jwt, created_event).await
     }
 
+    pub async fn verify(
+        &self,
+        created_event: CreatedEvent,
+        code: String,
+    ) -> Result<verify::Output> {
+        verify::handler(&self.repo, &self.jwt, created_event, code).await
+    }
+
     pub async fn list(&self) -> Result<Vec<CreatedEvent>> {
         list::handler(&self.repo).await
     }
@@ -102,16 +111,38 @@ pub fn new_routes(service: &Service) -> Router {
             }),
         )
         .route(
+            "/verify",
+            post({
+                let service = service.clone();
+
+                |Json(input): Json<verify::Input>| async move {
+                    let output = service
+                        .verify(
+                            events::CreatedEvent::new(
+                                Uuid::new_v4(),
+                                input.email,
+                                Role::Owner,
+                                Utc::now(),
+                                Uuid::new_v4(),
+                            ),
+                            input.code,
+                        )
+                        .await
+                        .map_err(|e| {
+                            tracing::error!(e);
+                            StatusCode::INTERNAL_SERVER_ERROR
+                        })?;
+
+                    Ok::<Json<verify::Output>, ErrorResponse>(Json(output))
+                }
+            }),
+        )
+        .route(
             "/list",
             get({
                 let service = service.clone();
 
-                || async move {
-                    Json(json!(service
-                        .list()
-                        .await
-                        .expect("Failed to list identities.")))
-                }
+                || async move { Json(service.list().await.expect("Failed to list identities.")) }
             }),
         )
 }
