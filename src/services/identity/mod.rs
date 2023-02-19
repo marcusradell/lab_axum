@@ -1,7 +1,4 @@
-use self::{
-    events::{CreatedEvent, CREATED_EVENT},
-    sign_in::Output,
-};
+use self::{events::CreatedEvent, sign_in::Output};
 use crate::{
     io::{
         env::{self, expect_env},
