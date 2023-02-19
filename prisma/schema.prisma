@@ -20,16 +20,3 @@ model IdentityEvent {
   @@unique([stream_id, version])
   @@index([stream_id, version])
 }
-
-model JobEvent {
-  sequence_num BigInt   @id @default(autoincrement())
-  stream_id    String
-  version      Int
-  event_type   String
-  data         Json
-  cid          String
-  inserted_at  DateTime
-
-  @@unique([stream_id, version])
-  @@index([stream_id, version])
-}
