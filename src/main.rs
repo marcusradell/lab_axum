@@ -1,4 +1,7 @@
-use crate::{io::repo::Repo, services::identity};
+use crate::{
+    io::repo::Repo,
+    services::identity::{self},
+};
 use axum::Router;
 use dotenvy::dotenv;
 use io::env::expect_env;
