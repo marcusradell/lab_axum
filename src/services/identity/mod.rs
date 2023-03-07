@@ -15,7 +15,6 @@ use axum::{
 };
 use chrono::Utc;
 pub use role::Role;
-use serde_json::json;
 use uuid::Uuid;
 
 pub mod events;
