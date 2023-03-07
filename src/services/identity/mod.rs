@@ -48,14 +48,14 @@ impl Service {
 
         if identity_repo_is_empty {
             // TODO: fix broken code. It should call another method than sign_in handler.
-            sign_in::handler(&self.repo, &self.jwt, email).await?;
+            sign_in::handler(&self.repo, email).await?;
         }
 
         Ok(())
     }
 
     pub async fn sign_in(&self, email: String) -> Result<()> {
-        sign_in::handler(&self.repo, &self.jwt, email).await
+        sign_in::handler(&self.repo, email).await
     }
 
     pub async fn verify(
