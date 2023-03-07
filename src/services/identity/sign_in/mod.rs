@@ -22,8 +22,11 @@ fn generate_verification_code() -> String {
 
 pub async fn handler(repo: &impl CreateVerificationRepo, email: String) -> Result<()> {
     let code = generate_verification_code();
-    repo.create_verification(Uuid::new_v4(), email, code.to_string(), Utc::now())
+
+    repo.create_verification(Uuid::new_v4(), email.clone(), code.to_string(), Utc::now())
         .await?;
+
+    println!("Created verification code {code} for email {email}.");
 
     Ok(())
 }
