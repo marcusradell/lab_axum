@@ -1,4 +1,5 @@
 use self::repo::CreateVerificationRepo;
+use super::repo::GetVerificationCodeRepo;
 use crate::result::Result;
 use chrono::Utc;
 use rand::{distributions::Alphanumeric, Rng};
@@ -20,13 +21,25 @@ fn generate_verification_code() -> String {
         .collect()
 }
 
-pub async fn handler(repo: &impl CreateVerificationRepo, email: String) -> Result<()> {
-    let code = generate_verification_code();
+pub async fn handler(
+    repo: &(impl CreateVerificationRepo + GetVerificationCodeRepo),
+    email: String,
+) -> Result<()> {
+    let preexisting_code = repo.get_verification_code(&email).await?;
 
-    repo.create_verification(Uuid::new_v4(), email.clone(), code.to_string(), Utc::now())
-        .await?;
+    let code = match preexisting_code {
+        Some(code) => code,
+        None => {
+            let code = generate_verification_code();
 
-    println!("Created verification code {code} for email {email}.");
+            repo.create_verification(Uuid::new_v4(), email.clone(), code.to_string(), Utc::now())
+                .await?;
+
+            code
+        }
+    };
+
+    println!("Use verification code {code} for email {email}.");
 
     Ok(())
 }

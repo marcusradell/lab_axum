@@ -19,6 +19,7 @@ use uuid::Uuid;
 
 pub mod events;
 mod list;
+mod repo;
 mod role;
 mod sign_in;
 mod verify;

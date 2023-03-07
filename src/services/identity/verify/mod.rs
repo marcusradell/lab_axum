@@ -1,7 +1,8 @@
 use std::io::{Error, ErrorKind};
 
-use self::repo::{CreateIdentityRepo, GetVerificationCodeRepo};
+use self::repo::CreateIdentityRepo;
 use super::events::CreatedEvent;
+use super::repo::GetVerificationCodeRepo;
 use crate::{io::jwt::Jwt, result::Result};
 use serde::{Deserialize, Serialize};
 
