@@ -1,4 +1,4 @@
-use self::{events::CreatedEvent, sign_in::Output};
+use self::events::CreatedEvent;
 use crate::{
     io::{
         env::{self, expect_env},
@@ -47,25 +47,15 @@ impl Service {
         let identity_repo_is_empty = list::handler(&self.repo).await?.is_empty();
 
         if identity_repo_is_empty {
-            sign_in::handler(
-                &self.repo,
-                &self.jwt,
-                events::CreatedEvent::new(
-                    Uuid::new_v4(),
-                    email,
-                    Role::Owner,
-                    Utc::now(),
-                    Uuid::new_v4(),
-                ),
-            )
-            .await?;
+            // TODO: fix broken code. It should call another method than sign_in handler.
+            sign_in::handler(&self.repo, &self.jwt, email).await?;
         }
 
         Ok(())
     }
 
-    pub async fn sign_in(&self, created_event: CreatedEvent) -> Result<sign_in::Output> {
-        sign_in::handler(&self.repo, &self.jwt, created_event).await
+    pub async fn sign_in(&self, email: String) -> Result<()> {
+        sign_in::handler(&self.repo, &self.jwt, email).await
     }
 
     pub async fn verify(
@@ -91,21 +81,12 @@ pub fn new_routes(service: &Service) -> Router {
                 let service = service.clone();
 
                 |Json(input): Json<sign_in::Input>| async move {
-                    let output = service
-                        .sign_in(events::CreatedEvent::new(
-                            Uuid::new_v4(),
-                            input.email,
-                            Role::Owner,
-                            Utc::now(),
-                            Uuid::new_v4(),
-                        ))
-                        .await
-                        .map_err(|e| {
-                            tracing::error!(e);
-                            StatusCode::INTERNAL_SERVER_ERROR
-                        })?;
+                    service.sign_in(input.email).await.map_err(|e| {
+                        tracing::error!(e);
+                        StatusCode::INTERNAL_SERVER_ERROR
+                    })?;
 
-                    Ok::<Json<Output>, ErrorResponse>(Json(output))
+                    Ok::<Json<()>, ErrorResponse>(Json(()))
                 }
             }),
         )

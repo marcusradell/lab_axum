@@ -1,8 +1,8 @@
-use self::repo::CreateRepo;
+use self::repo::CreateVerificationRepo;
 use crate::{io::jwt::Jwt, result::Result};
-use serde::{Deserialize, Serialize};
-
-use super::events::CreatedEvent;
+use chrono::Utc;
+use serde::Deserialize;
+use uuid::Uuid;
 
 mod repo;
 
@@ -11,13 +11,10 @@ pub struct Input {
     pub email: String,
 }
 
-#[derive(Serialize)]
-pub struct Output {
-    pub token: String,
-}
+pub async fn handler(repo: &impl CreateVerificationRepo, jwt: &Jwt, email: String) -> Result<()> {
+    let code = "abc123";
+    repo.create_verification(Uuid::new_v4(), email, code.to_string(), Utc::now())
+        .await?;
 
-pub async fn handler(repo: &impl CreateRepo, jwt: &Jwt, event: CreatedEvent) -> Result<Output> {
-    repo.sign_in(&event).await?;
-    let token = jwt.encode(&event.stream_id, &event.role)?;
-    Ok(Output { token })
+    Ok(())
 }
