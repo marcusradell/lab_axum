@@ -3,7 +3,10 @@ use std::io::{Error, ErrorKind};
 use self::repo::CreateIdentityRepo;
 use super::events::CreatedEvent;
 use super::repo::GetVerificationCodeRepo;
-use crate::{io::jwt::Jwt, result::Result};
+use crate::{
+    io::jwt::Jwt,
+    result::{err_invalid_data, Result},
+};
 use serde::{Deserialize, Serialize};
 
 mod repo;
@@ -28,10 +31,7 @@ pub async fn handler(
     let correct_code = repo
         .get_verification_code(&event.email)
         .await?
-        .ok_or(Box::new(Error::new(
-            ErrorKind::InvalidData,
-            "Missing verification code.",
-        )))?;
+        .ok_or(err_invalid_data("Missing verification code."))?;
 
     if code != correct_code {
         return Err(Box::new(Error::new(ErrorKind::InvalidInput, "Wrong code")));
